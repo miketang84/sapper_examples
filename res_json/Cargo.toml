@@ -1,0 +1,12 @@
+[package]
+name = "res_json"
+version = "0.1.0"
+authors = ["Mike Tang <miketang84@outlook.com>"]
+
+[dependencies]
+sapper = { git="https://github.com/sappworks/sapper.git" }
+log = "0.3"
+env_logger = "0.3"
+
+serde="0.7"
+serde_json="0.7"
