@@ -1,0 +1,10 @@
+[package]
+name = "codegen"
+version = "0.1.0"
+authors = ["Mike Tang <miketang84@outlook.com>"]
+
+[dependencies]
+dotenv = "0.8"
+sporm = { git="https://github.com/sappworks/sporm.git" }
+spcodegen = { git="https://github.com/sappworks/spcodegen.git" }
+
