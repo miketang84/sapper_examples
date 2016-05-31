@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="keywords" content="艺术 艺术品 艺术家 artselleasy ase" />
+    <meta name="description" content="艺术蜥蜴" />
+    <title>{% block title %}{% endblock title %}</title>
+    
+    <script src="/js/jquery-1.7.2.min.js"></script>
+    {% block part_js %}
+    {% endblock part_js %}
+    
+    {% block part_style %}
+    {% endblock part_style %}
+
+<!-- Default base css style -->
+<style type="text/css">
+body {
+    color: #333;
+    font-size: 14px;
+}
+
+img, p, body {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: #333;
+}
+
+.header {
+	border-bottom: solid #ddd 1px;
+}
+
+.header_left {
+    float: left;
+    line-height: 40px;
+    padding-left: 8px;
+    /*color: #444;*/
+    color: #ff6d4a;
+
+}
+.header_left span {
+    padding: 3px 4px 3px 4px;
+    border: 1px solid #ff6d4a;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+
+.header_title {
+    text-align: center;
+    width: 50%;
+    line-height: 38px;
+    color: #444;
+    margin: auto;
+}
+
+.float_menu {
+    display: none;
+    background: #eee;
+    border: 1px #ddd solid;
+    padding: 0px 8px 12px 8px;
+    position: absolute;
+    top: 36px;
+    left: 10px;
+    z-index: 999;
+}
+.float_menu p {
+    height: 30px;
+}
+
+.header_title span {
+    font-size: 16px;
+}
+
+
+
+
+</style>
+        
+</head>
+<body>
+    <div class="header">
+        {% block header %}
+        <div class="header_left">
+            <span class="header_left_cap">登录</span>
+            <div class="float_menu">
+                <a href="/ysxy/h5/qiagou.html"><p class="my_qiaogou">我的洽购</p></a>
+                <a href="/ysxy/h5/paimai.html"><p class="my_jingpai">我的竞拍</p><a>
+                <a href="/ysxy/h5/order.html"><p class="my_dingdan">我的订单</p></a>
+                <a href="/ysxy/h5/myinfo.html"><p class="my_info">个人信息</p></a>
+            </div>
+        </div>
+
+        <div class="header_title">
+            {% block header_title %}
+            {% endblock header_title %}
+        </div>
+
+        <div class="header_right">
+            {% block header_right %}
+            {% endblock header_right %}
+        </div>
+        {% endblock header %}
+    </div>
+    <div class="body">
+        {% block body %}
+        {% endblock body %}
+    </div>
+    
+    <div class="footer">
+        <span class="caption">艺术品交易·用艺术蜥蜴</span>
+        {% block footer %}
+        {% endblock footer %}
+    </div>
+    
+    {% block extra_js %}
+    {% endblock extra_js %}
+    
+    
+    <script>
+if (getToken && getToken()) {
+    $(".header_left_cap").text("我的");
+}
+    </script>
+        
+</body>
+</html>

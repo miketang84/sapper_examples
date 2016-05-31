@@ -1,9 +1,17 @@
 
-extern crate sapper;
 extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate typemap;
+
+extern crate sapper;
+extern crate sapper_request_basic_logger;
+extern crate sapper_tmpl;
+#[macro_use]
+extern crate sapper_body_params;
+extern crate sapper_query_params;
+#[macro_use]
+extern crate sapper_macros;
 
 use std::sync::{Arc, Mutex};
 use std::collections::HashMap;
@@ -21,14 +29,16 @@ struct MyApp;
 // total entry and exitice
 impl SAppWrapper for MyApp {
     fn before(&self, req: &mut Request) -> Result<()> {
-        println!("{}", "in SAppWrapper before.");
-        
+        sapper_request_basic_logger::init(req)?;
+        sapper_query_params::process(req)?;
+        sapper_body_params::process(req)?;
+
         Ok(())
     }
     
     fn after(&self, req: &Request, res: &mut Response) -> Result<()> {
-        println!("{}", "in SAppWrapper after.");
-        
+        sapper_request_basic_logger::log(req, res)?;
+
         Ok(())
     }
 }

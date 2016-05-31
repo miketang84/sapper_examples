@@ -22,6 +22,63 @@ impl Blog {
         Ok(response)
     }
     
+    fn post_view(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn posts_view(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn create_post_view(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn create_post(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn edit_post_view(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn edit_post(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    fn delete_post(req: &mut Request) -> Result<Response> {
+        
+        let mut response = Response::new();
+        response.write_body("hello, boy!".to_string());
+        
+        Ok(response)
+    }
+    
+    
     fn test(req: &mut Request) -> Result<Response> {
         let a_global = req.ext().get::<A_INT>();
         println!("in test, a_global is {:?}", a_global);
@@ -59,21 +116,15 @@ impl Blog {
 impl SModule for Blog {
     
     fn before(&self, req: &mut Request) -> Result<()> {
-        println!("{}", "in Biz before.");
         Ok(())
     }
     
     fn after(&self, req: &Request, res: &mut Response) -> Result<()> {
-        println!("{}", "in Biz after.");
-        
         Ok(())
     }
     
     // here add routers ....
     fn router(&self, router: &mut SRouter) -> Result<()> {
-        // need to use Router struct here
-        // XXX: here could not write as this, should record first, not parse it now
-        
         
         router.get("/", Blog::index);
         router.get("/post/:postid", Blog::post_view);
