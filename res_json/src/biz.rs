@@ -13,38 +13,6 @@ use serde_json::builder::ObjectBuilder;
 
 use sapper::header::ContentType;
 
-macro_rules! res_json {
-    ($json:expr) => ({
-        let mut response = Response::new();
-        response.headers_mut().set(ContentType::json());
-        response.write_body(serde_json::to_string(&$json).unwrap());
-
-        Ok(response)
-    })
-}
-
-
-macro_rules! res_json_ok {
-    ($info:expr) => ({
-        let json2ret = ObjectBuilder::new()
-            .insert("success", true)
-            .insert("info", $info)
-            .unwrap();
-
-        res_json!(json2ret)
-    })
-}
-
-macro_rules! res_json_error {
-    ($info:expr) => ({
-        let json2ret = ObjectBuilder::new()
-            .insert("success", false)
-            .insert("info", $info)
-            .unwrap();
-
-        res_json!(json2ret)
-    })
-}
 
 
 #[derive(Clone)]

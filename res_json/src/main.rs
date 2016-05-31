@@ -5,6 +5,8 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate sapper_macros;
 
 use sapper::{SApp, SAppWrapper, Request, Response, Result, SModule};
 
