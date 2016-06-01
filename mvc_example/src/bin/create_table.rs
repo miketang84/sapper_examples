@@ -20,7 +20,7 @@ CREATE TABLE blog (
     id bigserial NOT NULL,
     title character varying,
     content character varying,
-    created_time character varying,
+    created_time timestamp with time zone NOT NULL,
     CONSTRAINT blog_pkey PRIMARY KEY (id)
 );
 ";

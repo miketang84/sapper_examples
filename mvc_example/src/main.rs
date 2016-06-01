@@ -1,8 +1,14 @@
+#![feature(question_mark)] 
 
 extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate typemap;
+extern crate chrono;
+extern crate dotenv;
+extern crate sporm;
+extern crate serde;
+extern crate serde_json;
 
 extern crate sapper;
 extern crate sapper_request_basic_logger;
@@ -18,10 +24,16 @@ use std::collections::HashMap;
 use sapper::{SApp, SAppWrapper, Request, Response, Result, SModule};
 use typemap::Key;
 
+use dotenv::dotenv;
+use std::env;
+
+use sporm::pool::ManagedPool;
+
+
 
 
 mod blog;
-use blog::BlogModule;
+use blog::Blog as BlogModule;
 
 #[derive(Clone)]
 struct MyApp;
@@ -43,33 +55,27 @@ impl SAppWrapper for MyApp {
     }
 }
 
-pub struct A_INT;
-impl Key for A_INT { type Value = Arc<Box<usize>>; }
-pub struct A_HashMap;
-impl Key for A_HashMap { type Value = HashMap<&'static str, &'static str>; }
-pub struct A_Mutex;
-impl Key for A_Mutex { type Value = Arc<Mutex<HashMap<&'static str, &'static str>>>; }
+pub struct AppDB;
+impl Key for AppDB { type Value = Arc<ManagedPool>; }
 
 
 pub fn main() {
     env_logger::init().unwrap();
+    dotenv().ok();
     
-    
+    let db_url = env::var("DB_URL").expect("No postgres url variable DB_URL in .env config.");
+    let pool = Arc::new(ManagedPool::init(&db_url, 1).unwrap());
     
     let mut sapp = SApp::new();
     sapp.address("127.0.0.1")
         .port(1337)
         .init_global(Box::new(move |req: &mut Request| -> Result<()> {
-            println!("in init_global {:?}", req.query_string());
-            req.ext_mut().insert::<A_INT>(a_global.clone());
-            req.ext_mut().insert::<A_HashMap>(a_hash.clone());
-            req.ext_mut().insert::<A_Mutex>(a_mutex.clone());
+            req.ext_mut().insert::<AppDB>(pool.clone());
             
             Ok(())
         }))
         .with_wrapper(Box::new(MyApp))
-        .add_module(Box::new(Biz))
-        .add_module(Box::new(Foo));
+        .add_module(Box::new(BlogModule));
     
     println!("Listening on http://127.0.0.1:1337");
     sapp.run();

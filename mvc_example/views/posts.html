@@ -23,10 +23,10 @@
     <tbody>
         {% for post in posts %}
         <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td>{{ loop.index }}</td>
+            <td><a href="/post/{{post.id}}">{{ post.title }}</a></td>
+            <td>{{ post.content }}</td>
+            <td>{{ post.created_time }}</td>
         </tr>
         {% endfor %}
     </tbody>
