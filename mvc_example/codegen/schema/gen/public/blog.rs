@@ -1,10 +1,10 @@
 //! WARNING: This file is generated, derived from table public.blog, DO NOT EDIT
 
+use chrono::datetime::DateTime;
+use chrono::offset::utc::UTC;
 use gen::column;
 use gen::schema;
 use gen::table;
-use serde_json::Value as Json;
-use serde_json::value::ToJson;
 use sporm::dao::Dao;
 use sporm::dao::IsDao;
 use sporm::dao::Type;
@@ -26,8 +26,9 @@ pub struct Blog {
     pub id: i64,
     /// db data type: character varying
     pub content: Option<String>,
-    /// db data type: character varying
-    pub created_time: Option<String>,
+    /// not nullable 
+    /// db data type: timestamp with time zone
+    pub created_time: DateTime<UTC>,
     /// db data type: character varying
     pub title: Option<String>,
 
@@ -41,7 +42,7 @@ impl IsDao for Blog {
             id: dao.get(column::id),
             title: dao.get_opt(column::title),
             content: dao.get_opt(column::content),
-            created_time: dao.get_opt(column::created_time),
+            created_time: dao.get(column::created_time),
         }
     }
 
@@ -56,18 +57,8 @@ impl IsDao for Blog {
             Some(ref _value) => dao.set(column::content, _value),
             None => dao.set_null(column::content)
         }
-        match self.created_time {
-            Some(ref _value) => dao.set(column::created_time, _value),
-            None => dao.set_null(column::created_time)
-        }
+        dao.set(column::created_time, &self.created_time);
         dao
-    }
-}
-
-impl ToJson for Blog {
-
-    fn to_json(&self) -> Json {
-        self.to_dao().to_json()
     }
 }
 
@@ -78,7 +69,7 @@ impl Default for Blog {
             id: Default::default(),
             title: Default::default(),
             content: Default::default(),
-            created_time: Default::default(),
+            created_time: UTC::now(),
         }
     }
 }
@@ -122,9 +113,9 @@ impl IsTable for Blog {
                 },
                 Column {
                     name: column::created_time.to_owned(),
-                    data_type: Type::String,
-                    db_data_type: "character varying".to_owned(),
-                    is_primary: false, is_unique: false, not_null: false, is_inherited: false,
+                    data_type: Type::DateTime,
+                    db_data_type: "timestamp with time zone".to_owned(),
+                    is_primary: false, is_unique: false, not_null: true, is_inherited: false,
                     default: None,
                     comment: None,
                     foreign: None,

@@ -1,4 +1,5 @@
-#![feature(question_mark)] 
+#![feature(question_mark, custom_derive, plugin)]
+#![plugin(serde_macros)]
 
 extern crate env_logger;
 #[macro_use]
@@ -19,21 +20,21 @@ extern crate sapper_query_params;
 #[macro_use]
 extern crate sapper_macros;
 
-use std::sync::{Arc, Mutex};
-use std::collections::HashMap;
-use sapper::{SApp, SAppWrapper, Request, Response, Result, SModule};
+use std::sync::Arc;
 use typemap::Key;
-
 use dotenv::dotenv;
 use std::env;
 
+use sapper::{SApp, SAppWrapper, Request, Response, Result, SModule};
 use sporm::pool::ManagedPool;
 
 
-
+mod gen;
+pub use gen::public::Blog as BlogModel;
 
 mod blog;
 use blog::Blog as BlogModule;
+
 
 #[derive(Clone)]
 struct MyApp;

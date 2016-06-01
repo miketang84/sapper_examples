@@ -2,7 +2,6 @@ extern crate sporm;
 extern crate dotenv;
 
 use sporm::pool::ManagedPool;
-use sporm::database::Database;
 
 use dotenv::dotenv;
 use std::env;

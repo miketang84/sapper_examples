@@ -9,15 +9,12 @@ use sapper_tmpl::Context;
 use sapper::header::Location;
 use sapper::status;
 
-use sapper_body_params::ReqBodyParams;
-
 #[derive(Clone)]
 pub struct Blog;
 
 use AppDB;
-
 use sporm::query::{Query, Equality};
-
+use BlogModel;
 
 impl Blog {
 
@@ -28,16 +25,32 @@ impl Blog {
     
     fn post_view(req: &mut Request) -> Result<Response> {
         
-        let mut c = Context::new();
+        let params = get_path_params!(req);
+        let postid = params.find("postid").unwrap_or("");
         
+        let db = get_db!(req, AppDB);
+        let post: BlogModel = Query::select()
+            .from_table("blog")
+            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
+            .collect_one(db.as_ref()).unwrap();
+        
+        let mut c = Context::new();
+        c.add("post", &post);
         
         res_html!("post.html", c)
     }
     
     fn posts_view(req: &mut Request) -> Result<Response> {
         
-        let mut c = Context::new();
+        let db = get_db!(req, AppDB);
         
+        let posts: Vec<BlogModel> = Query::select()
+            .from_table("blog")
+            .collect(db.as_ref()).unwrap();
+        println!("{:?}", posts);
+        
+        let mut c = Context::new();
+        c.add("posts", &posts);
         
         res_html!("posts.html", c)
     }
@@ -49,29 +62,11 @@ impl Blog {
     
     fn create_post(req: &mut Request) -> Result<Response> {
         
-        let pool_wr = req.ext().get::<AppDB>();
-        let db = match pool_wr {
-            Some(pool) => {
-                match pool.connect() {
-                    Ok(conn) => conn,
-                    Err(_) => {
-                        return res_json_error!("get db error")
-                    }
-                }
-            },
-            None => return res_json_error!("get db error 2")
-        };
-        
-        let body_params = req.ext().get::<ReqBodyParams>();
-        let body_params = match body_params {
-            Some(body_params) => {
-                body_params
-            },
-            None => return res_json_error!("no body params error")
-        };
-        
-        let title = &body_params.get("title").unwrap()[0];
-        let content = &body_params.get("content").unwrap()[0];
+        let db = get_db!(req, AppDB);
+        let params = get_body_params!(req);
+        let title = check_param!(params, "title");
+        let content = check_param!(params, "content");
+
         let now: DateTime<UTC> = UTC::now();
         
         // insert to db
@@ -82,67 +77,56 @@ impl Blog {
             .set("created_time", &now)
             .execute(db.as_ref()).unwrap();
 
-          
-        // redirect
-        let mut response = Response::new();
-        response.set_status(status::Found);
-        response.headers_mut().set(Location("/posts".to_owned()));
-        // response.write_body("Redirect".to_string());
-        
-        Ok(response)
+        res_redirect!("/posts")
     }
     
     fn edit_post_view(req: &mut Request) -> Result<Response> {
+        let params = get_path_params!(req);
+        let postid = params.find("postid").unwrap_or("");
         
-        res_html!("edit_post.html", Context::new())
+        let db = get_db!(req, AppDB);
+        let post: BlogModel = Query::select()
+            .from_table("blog")
+            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
+            .collect_one(db.as_ref()).unwrap();
+        
+        let mut c = Context::new();
+        c.add("post", &post);
+        res_html!("edit_post.html", c)
     }
     
     fn edit_post(req: &mut Request) -> Result<Response> {
         
-        let mut response = Response::new();
-        response.write_body("hello, boy!".to_string());
+        let db = get_db!(req, AppDB);
+        let params = get_body_params!(req);
+        let postid = check_param!(params, "postid");
+        let title = check_param!(params, "title");
+        let content = check_param!(params, "content");
+
+        let now: DateTime<UTC> = UTC::now();
         
-        Ok(response)
+        Query::update()
+            .from_table("blog")
+            .set("title", title)
+            .set("content", content)
+            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
+            .execute(db.as_ref()).unwrap();
+
+        res_redirect!(&("/post/".to_owned() + postid))
     }
     
     fn delete_post(req: &mut Request) -> Result<Response> {
+        let db = get_db!(req, AppDB);
+        let params = get_path_params!(req);
+        let postid = params.find("postid").unwrap_or("");
         
-        let mut response = Response::new();
-        response.write_body("hello, boy!".to_string());
-        
-        Ok(response)
-    }
-    
-    
-    fn test(req: &mut Request) -> Result<Response> {
-        // let a_global = req.ext().get::<A_INT>();
-        // println!("in test, a_global is {:?}", a_global);
-        // let a_hash = req.ext().get::<A_HashMap>();
-        // println!("in test, a_hash is {:?}", a_hash);
-        // let a_mutex = req.ext().get::<A_Mutex>();
-        // println!("in test, a_mutex is {:?}", a_mutex);
-        // {
-        //     let mut a_mutex = a_mutex.unwrap();
-        //     let mut data = a_mutex.lock().unwrap();
-        //     data.insert("foo", "bar");
+        // insert to db
+        Query::delete()
+            .from_table("blog")
+            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
+            .execute(db.as_ref()).unwrap();
             
-        // }
-        // println!("in test, modified a_mutex is {:?}", a_mutex);
-        
-        let mut response = Response::new();
-        response.write_body("hello, tang gang gang!".to_string());
-        
-        Ok(response)
-    }
-    
-    fn test_post(req: &mut Request) -> Result<Response> {
-        
-        println!("in test_post, raw_body: {:?}", req.raw_body());
-        
-        let mut response = Response::new();
-        response.write_body("hello, I'am !".to_string());
-        
-        Ok(response)
+        res_redirect!("/posts")
     }
     
 }
@@ -166,9 +150,9 @@ impl SModule for Blog {
         router.get("/posts", Blog::posts_view);
         router.get("/post/create", Blog::create_post_view);
         router.post("/post/create", Blog::create_post);
-        router.get("/post/edit", Blog::edit_post_view);
+        router.get("/post/:postid/edit", Blog::edit_post_view);
         router.post("/post/edit", Blog::edit_post);
-        router.post("/post/delete", Blog::delete_post);
+        router.get("/post/:postid/delete", Blog::delete_post);
         
         Ok(())
         

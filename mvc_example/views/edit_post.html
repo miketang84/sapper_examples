@@ -14,9 +14,10 @@
 <h2>Edit Post</h2>
 <hr>
 
-<form action="/post/edit">
-<input type="text" name="title" value="{{ post.title }}">
-<textarea name="content" cols="30" rows="10">{{ post.content }}</textarea>
+<form action="/post/edit" method="POST">
+<input type="hidden" name="postid" value="{{ post.id }}"> 
+<input type="text" name="title" value="{{ post.title }}"> <br>
+<textarea name="content" cols="30" rows="10">{{ post.content }}</textarea> <br>
 <input type="submit" value="Submit">
 </form>
 

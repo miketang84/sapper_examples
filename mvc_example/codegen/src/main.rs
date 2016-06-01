@@ -23,7 +23,7 @@ fn main(){
             include_table_references: true,
             use_condensed_name: true,
             generate_table_meta: true,
-            base_dir: "../schema".to_string(),
+            base_dir: "schema".to_string(),
             include_views: true,
         };
     generator::generate_all(db.as_dev(), &config);
