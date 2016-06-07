@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    
+    <title>Welcome</title>
+</head>
+<body>
+
+<table>
+    <thead>
+        <tr>
+            <th>Num</th>
+            <th>title</th>
+            <th>content</th>
+            <th>action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for post in posts %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="/post/{{post.id}}">{{ post.title }}</a></td>
+            <td>{{ post.content }}</td>
+            <td><a href="/post/{{post.id}}/delete">delete</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    <a href="/post/create">new post</a>
+</p>
+
+</body>
+</html>
