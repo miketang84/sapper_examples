@@ -76,7 +76,7 @@ if you want to drop test data, just do `diesel migration redo`.
 run 
 
 ```
-cargo run --bin mvc_example
+cargo run
 ```
 
 to run this example. It will listen on `http://127.0.0.1:1337`.
