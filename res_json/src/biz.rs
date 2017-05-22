@@ -1,15 +1,13 @@
 
 use sapper::Result;
-use sapper::SModule;
+use sapper::SapperModule;
 use sapper::Request;
 use sapper::Response;
-use sapper::SRouter;
+use sapper::SapperRouter;
 
 use std::str;
 
-
 use serde_json;
-use serde_json::builder::ObjectBuilder;
 
 use sapper::header::ContentType;
 
@@ -21,11 +19,10 @@ pub struct Biz;
 impl Biz {
     // those handlers in module Biz
     fn index(req: &mut Request) -> Result<Response> {
-             
-        let json2ret = ObjectBuilder::new()
-            .insert("foo", "bar")
-            .insert("doit", 123)
-            .unwrap();
+        let json2ret = json!({
+            "foo": "bar",
+            "doit": 123
+        });
 
         res_json!(json2ret)
     }
@@ -41,7 +38,7 @@ impl Biz {
 }
 
 // set before, after middleware, and add routers
-impl SModule for Biz {
+impl SapperModule for Biz {
     
     fn before(&self, req: &mut Request) -> Result<()> {
         println!("{}", "in Biz before.");
@@ -55,7 +52,7 @@ impl SModule for Biz {
     }
     
     // here add routers ....
-    fn router(&self, router: &mut SRouter) -> Result<()> {
+    fn router(&self, router: &mut SapperRouter) -> Result<()> {
         // need to use Router struct here
         // XXX: here could not write as this, should record first, not parse it now
         
