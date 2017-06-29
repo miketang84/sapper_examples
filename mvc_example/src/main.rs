@@ -1,16 +1,17 @@
-#[macro_use]
-extern crate log;
 extern crate env_logger;
 extern crate dotenv;
 
 extern crate typemap;
 extern crate chrono;
 extern crate serde;
+#[macro_use] extern crate log;
 #[macro_use] extern crate serde_json;
-
-#[macro_use] extern crate diesel;
-extern crate sapper;
+#[macro_use] extern crate serde_derive;
 #[macro_use] extern crate sapper_std;
+#[macro_use] extern crate diesel;
+#[macro_use] extern crate diesel_codegen;
+
+extern crate sapper;
 
 use std::env;
 use std::sync::Arc;
@@ -33,13 +34,13 @@ struct MyApp;
 
 impl SapperAppShell for MyApp {
     fn before(&self, req: &mut Request) -> Result<()> {
-        sapper_std::init(req);
+        sapper_std::init(req)?;
 
         Ok(())
     }
     
     fn after(&self, req: &Request, res: &mut Response) -> Result<()> {
-        sapper_std::finish(req, res);
+        sapper_std::finish(req, res)?;
 
         Ok(())
     }
@@ -73,7 +74,7 @@ pub fn main() {
             
         //     Ok(())
         // }))
-        .with_wrapper(Box::new(MyApp))
+        .with_shell(Box::new(MyApp))
         .add_module(Box::new(BlogModule));
     
     println!("Listening on http://127.0.0.1:1337");

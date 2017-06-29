@@ -1,6 +1,6 @@
-use chrono::{DateTime, UTC};
+use chrono::prelude::*;
 use sapper::{Result, SapperModule, Request, Response, SapperRouter};
-use sapper_std::Context;
+use sapper_std::{Context, render, PathParams, FormParams, QueryParams};
 
 use diesel;
 use diesel::prelude::*;
@@ -88,7 +88,7 @@ impl BlogModule {
         use schema::blogs;
         
         let db = get_db!(req, AppDB);
-        let params = get_body_params!(req);
+        let params = get_form_params!(req);
         let title = t_param!(params, "title");
         let content = t_param!(params, "content");
 
@@ -129,28 +129,27 @@ impl BlogModule {
         
         
         let db = get_db!(req, AppDB);
-        let params = get_body_params!(req);
+        let params = get_form_params!(req);
         let postid = t_param!(params, "postid").parse::<i64>().unwrap();
         let utitle = t_param!(params, "title");
         let ucontent = t_param!(params, "content");
 
         //let now: DateTime<UTC> = UTC::now();
         
-        let mut post: BlogModel = blogs.find(postid)
-                        .first::<BlogModel>(&db)
-                        .expect("Error finding blog");
-        post.title = utitle.clone();
-        post.content = ucontent.clone();
-        post.save_changes::<BlogModel>(&db).unwrap();
+        //let mut post: BlogModel = blogs.find(postid)
+        //                .first::<BlogModel>(&db)
+        //                .expect("Error finding blog");
+        //post.title = utitle.clone();
+        //post.content = ucontent.clone();
+        //post.save_changes::<BlogModel>(&db).unwrap();
         
         
-        // let post = diesel::update(blogs.find(postid.parse::<i64>().unwrap()))
-        //                 .set([title.eq(utitle), content.eq(ucontent)])
-        //                 // .set(content.eq(ucontent))
-        //                 .get_result::<BlogModel>(&db)
-        //                 .expect(&format!("Unable to find blog {}", postid));
+        let post = diesel::update(blogs.find(postid))
+                         .set((title.eq(utitle), content.eq(ucontent)))
+                         .get_result::<BlogModel>(&db)
+                         .expect(&format!("Unable to find blog {}", postid));
 
-        res_redirect!(&("/post/".to_owned() + postid))
+        res_redirect!(&("/post/".to_owned() + &postid.to_string()))
     }
     
     fn delete_post(req: &mut Request) -> Result<Response> {

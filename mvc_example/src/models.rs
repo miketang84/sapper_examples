@@ -1,9 +1,7 @@
 use diesel::prelude::*;
-use chrono::{DateTime, UTC};
 
 use super::schema::blogs;
 #[derive(Queryable, Serialize, Debug, Deserialize)]
-#[changeset_for(blogs)]
 pub struct Blog {
     pub id: i64,
     pub title: String,
