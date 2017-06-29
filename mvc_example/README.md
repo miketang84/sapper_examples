@@ -1,6 +1,6 @@
-## MVC_Example
+## MVC Diesel Example
 
-MVC example is the first full featured [sapper](https://github.com/sappworks/sapper) app.
+This example is a [sapper](https://github.com/sappworks/sapper) app, with diesel as its orm.
 
 This example contains:
 
@@ -15,7 +15,7 @@ This example is designed to demostrate some sapper's abilities:
 2. module;
 3. module middleware;
 4. router;
-5. global (cross requests) shared object not using unsafe;
+5. global (cross requests) shared object without unsafe;
 6. orm;
 7. orm codegen;
 8. create/drop db table from command;
@@ -34,44 +34,52 @@ First, you need install postgresql (I tested it on postgresql 9.4).
 Modify `.env` file in the root of this example, my setting is like this:
 
 ```
-DB_URL=postgres://postgres:123456@localhost:5432/postgres
+DATABASE_URL=postgres://postgres:123456@localhost/sapper_diesel
 ```
 
 You should modify this line to your own config.
 
-### 3. Create DB Table
+### 3. Install Diesel Tool
 
 After setting db config, run
 
 ```
-cargo run --bin create_table
+cargo install diesel_cli
 ```
 
-This will create `Blog` table in your pg database;
+### 4. Do DB Setup
 
-(you can run `cargo run --bin drop_table` if you want to clean those table data)
+In root of this example, run 
 
-### 4. Auto Generate Model Code
+```
+diesel setup
+```
+
+This will create our database (if it didn't already exist), and create an empty migrations directory that we can use to manage our schema.
+
+
+### 5. Migration
+
+In root of this example, run 
+
+```
+diesel migration run
+```
+
+This step will create **blogs** table in your db.
+
+
+### 6. Run App
 
 run 
 
 ```
-./generate_model.sh
-``` 
-
-to generate model code from postgresql automatically.
-
-### 5. Run App
-
-run 
-
-```
-cargo run --bin mvc_example
+cargo run
 ```
 
 to run this example. It will listen on `http://127.0.0.1:1337`.
 
-### 5. Visit Web Page
+### 7. Visit Web Page
 
 Open `http://127.0.0.1:1337` to play. 
 

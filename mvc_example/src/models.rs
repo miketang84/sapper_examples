@@ -1,7 +1,8 @@
 use diesel::prelude::*;
 use chrono::{DateTime, UTC};
 
-#[derive(Queryable, Serialize, Debug)]
+use super::schema::blogs;
+#[derive(Queryable, Serialize, Debug, Deserialize)]
 #[changeset_for(blogs)]
 pub struct Blog {
     pub id: i64,
@@ -10,9 +11,8 @@ pub struct Blog {
     // pub created_time: DateTime<UTC>,
 }
 
-use super::schema::blogs;
-
-#[insertable_into(blogs)]
+#[derive(Insertable, Debug, Serialize, Deserialize)]
+#[table_name="blogs"]
 pub struct NewBlog<'a> {
     pub title: &'a str,
     pub content: &'a str,

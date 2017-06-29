@@ -1,18 +1,44 @@
 use chrono::{DateTime, UTC};
-use sporm::query::{Query, Equality};
-use sapper::{Result, SModule, Request, Response, SRouter};
-use sapper::status;
-use sapper::header::Location;
-use sapper_tmpl::Context;
+use sapper::{Result, SapperModule, Request, Response, SapperRouter};
+use sapper_std::Context;
 
+use diesel;
+use diesel::prelude::*;
+use diesel::pg::PgConnection;
 
 #[derive(Clone)]
-pub struct Blog;
+pub struct BlogModule;
 
 use AppDB;
-use BlogModel;
+use models::Blog as BlogModel;
+use models::NewBlog;
+use super::establish_connection;
 
-impl Blog {
+
+// macro_rules! get_db {
+//     ($req:expr, $dbkey:ty) => ({
+//         let conn_wr = $req.ext().get::<$dbkey>();
+//         let db = match conn_wr {
+//             Some(conn) => {
+//                 conn
+//             },
+//             None => return res_500!("no db defined.")
+//         };
+
+//         db
+//     })
+// }
+
+
+macro_rules! get_db {
+    ($req:expr, $dbkey:ty) => ({
+        establish_connection()
+    })
+}
+
+
+
+impl BlogModule {
 
     fn index(req: &mut Request) -> Result<Response> {
         
@@ -20,15 +46,16 @@ impl Blog {
     }
     
     fn post_view(req: &mut Request) -> Result<Response> {
-        
-        let params = get_path_params!(req);
-        let postid = params.find("postid").unwrap_or("");
+        use schema::blogs::dsl::*;
         
         let db = get_db!(req, AppDB);
-        let post: BlogModel = Query::select()
-            .from_table("blog")
-            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
-            .collect_one(db.as_ref()).unwrap();
+
+        let params = get_path_params!(req);
+        let postid = t_param!(params, "postid").parse::<i64>().unwrap();
+       
+        let post = blogs.find(postid)
+                .first::<BlogModel>(&db)
+                .expect("Error loading blog");
         
         let mut c = Context::new();
         c.add("post", &post);
@@ -37,12 +64,13 @@ impl Blog {
     }
     
     fn posts_view(req: &mut Request) -> Result<Response> {
+        use schema::blogs::dsl::*;
         
         let db = get_db!(req, AppDB);
+        let results = blogs.load::<BlogModel>(&db).expect("Error loading blogs");
         
-        let posts: Vec<BlogModel> = Query::select()
-            .from_table("blog")
-            .collect(db.as_ref()).unwrap();
+        let posts = results;
+        
         println!("{:?}", posts);
         
         let mut c = Context::new();
@@ -57,34 +85,39 @@ impl Blog {
     }
     
     fn create_post(req: &mut Request) -> Result<Response> {
+        use schema::blogs;
         
         let db = get_db!(req, AppDB);
         let params = get_body_params!(req);
-        let title = check_param!(params, "title");
-        let content = check_param!(params, "content");
+        let title = t_param!(params, "title");
+        let content = t_param!(params, "content");
 
-        let now: DateTime<UTC> = UTC::now();
+        //let now: DateTime<UTC> = UTC::now();
         
-        // insert to db
-        Query::insert()
-            .into_table("blog")
-            .set("title", title)
-            .set("content", content)
-            .set("created_time", &now)
-            .execute(db.as_ref()).unwrap();
+        let new_blog = NewBlog {
+            title: title,
+            content: content,
+            // created_time: now
+        };
+        
+        diesel::insert(&new_blog)
+            .into(blogs::table)
+            .get_result::<BlogModel>(&db)
+            .expect("Error saving new blog");
 
         res_redirect!("/posts")
     }
     
     fn edit_post_view(req: &mut Request) -> Result<Response> {
+        use schema::blogs::dsl::*;
+        
         let params = get_path_params!(req);
-        let postid = params.find("postid").unwrap_or("");
+        let postid = t_param!(params, "postid").parse::<i64>().unwrap();
         
         let db = get_db!(req, AppDB);
-        let post: BlogModel = Query::select()
-            .from_table("blog")
-            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
-            .collect_one(db.as_ref()).unwrap();
+        let post = blogs.find(postid)
+                .first::<BlogModel>(&db)
+                .expect("Error loading blog");
         
         let mut c = Context::new();
         c.add("post", &post);
@@ -92,43 +125,52 @@ impl Blog {
     }
     
     fn edit_post(req: &mut Request) -> Result<Response> {
+        use schema::blogs::dsl::*;
+        
         
         let db = get_db!(req, AppDB);
         let params = get_body_params!(req);
-        let postid = check_param!(params, "postid");
-        let title = check_param!(params, "title");
-        let content = check_param!(params, "content");
+        let postid = t_param!(params, "postid").parse::<i64>().unwrap();
+        let utitle = t_param!(params, "title");
+        let ucontent = t_param!(params, "content");
 
-        let now: DateTime<UTC> = UTC::now();
+        //let now: DateTime<UTC> = UTC::now();
         
-        Query::update()
-            .from_table("blog")
-            .set("title", title)
-            .set("content", content)
-            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
-            .execute(db.as_ref()).unwrap();
+        let mut post: BlogModel = blogs.find(postid)
+                        .first::<BlogModel>(&db)
+                        .expect("Error finding blog");
+        post.title = utitle.clone();
+        post.content = ucontent.clone();
+        post.save_changes::<BlogModel>(&db).unwrap();
+        
+        
+        // let post = diesel::update(blogs.find(postid.parse::<i64>().unwrap()))
+        //                 .set([title.eq(utitle), content.eq(ucontent)])
+        //                 // .set(content.eq(ucontent))
+        //                 .get_result::<BlogModel>(&db)
+        //                 .expect(&format!("Unable to find blog {}", postid));
 
         res_redirect!(&("/post/".to_owned() + postid))
     }
     
     fn delete_post(req: &mut Request) -> Result<Response> {
+        use schema::blogs::dsl::*;
+        
         let db = get_db!(req, AppDB);
         let params = get_path_params!(req);
-        let postid = params.find("postid").unwrap_or("");
+        let postid = t_param!(params, "postid").parse::<i64>().unwrap();
         
-        // insert to db
-        Query::delete()
-            .from_table("blog")
-            .filter("id", Equality::EQ, &postid.parse::<i64>().unwrap())
-            .execute(db.as_ref()).unwrap();
-            
+        diesel::delete(blogs.find(postid))
+            .execute(&db)
+            .expect("Error deleting blog");
+        
         res_redirect!("/posts")
     }
     
 }
 
 // set before, after middleware, and add routers
-impl SModule for Blog {
+impl SapperModule for BlogModule {
     
     fn before(&self, req: &mut Request) -> Result<()> {
         Ok(())
@@ -139,16 +181,16 @@ impl SModule for Blog {
     }
     
     // here add routers ....
-    fn router(&self, router: &mut SRouter) -> Result<()> {
+    fn router(&self, router: &mut SapperRouter) -> Result<()> {
         
-        router.get("/", Blog::index);
-        router.get("/post/:postid", Blog::post_view);
-        router.get("/posts", Blog::posts_view);
-        router.get("/post/create", Blog::create_post_view);
-        router.post("/post/create", Blog::create_post);
-        router.get("/post/:postid/edit", Blog::edit_post_view);
-        router.post("/post/edit", Blog::edit_post);
-        router.get("/post/:postid/delete", Blog::delete_post);
+        router.get("/", BlogModule::index);
+        router.get("/post/:postid", BlogModule::post_view);
+        router.get("/posts", BlogModule::posts_view);
+        router.get("/post/create", BlogModule::create_post_view);
+        router.post("/post/create", BlogModule::create_post);
+        router.get("/post/:postid/edit", BlogModule::edit_post_view);
+        router.post("/post/edit", BlogModule::edit_post);
+        router.get("/post/:postid/delete", BlogModule::delete_post);
         
         Ok(())
         

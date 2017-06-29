@@ -17,7 +17,6 @@
             <th>Num</th>
             <th>title</th>
             <th>content</th>
-            <th>created_time</th>
             <th>action</th>
         </tr>
     </thead>
@@ -27,7 +26,6 @@
             <td>{{ loop.index }}</td>
             <td><a href="/post/{{post.id}}">{{ post.title }}</a></td>
             <td>{{ post.content }}</td>
-            <td>{{ post.created_time }}</td>
             <td><a href="/post/{{post.id}}/delete">delete</a></td>
         </tr>
         {% endfor %}
