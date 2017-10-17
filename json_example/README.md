@@ -1,5 +1,12 @@
 Readme
 
+This demo show
+
+1. how to get various type parameters;
+2. how to return json.
+
+Step:
+
 1. cargo run
 2. use these requests to test
 
