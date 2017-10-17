@@ -2,15 +2,12 @@
 extern crate sapper;
 extern crate env_logger;
 extern crate serde;
-#[macro_use]
-extern crate serde_json;
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate sapper_std;
+#[macro_use] extern crate log;
+#[macro_use] extern crate serde_json;
+#[macro_use] extern crate sapper_std;
+#[macro_use] extern crate serde_derive;
 
 use sapper::{SapperApp, SapperAppShell, Request, Response, Result, SapperModule};
-
 
 
 mod biz;
@@ -18,17 +15,16 @@ use biz::Biz;
 
 #[derive(Clone)]
 struct MyApp;
-// must impl it
-// total entry and exitice
+
 impl SapperAppShell for MyApp {
     fn before(&self, req: &mut Request) -> Result<()> {
-        println!("{}", "in SapperAppShell before.");
+        sapper_std::init(req)?;
         
         Ok(())
     }
     
     fn after(&self, req: &Request, res: &mut Response) -> Result<()> {
-        println!("{}", "in SapperAppShell after.");
+        sapper_std::finish(req, res)?;
         
         Ok(())
     }
