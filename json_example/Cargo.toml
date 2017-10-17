@@ -1,13 +1,13 @@
 [package]
-name = "res_json"
+name = "json_example"
 version = "0.1.0"
 authors = ["Mike Tang <miketang84@outlook.com>"]
 
 [dependencies]
-sapper = { git="https://github.com/sappworks/sapper.git" }
-sapper_std = { git="https://github.com/sappworks/sapper_std.git" }
+sapper = "0.1"
+sapper_std = "0.1"
 log = "*"
 env_logger = "*"
-
 serde="*"
 serde_json="*"
+serde_derive="*"
