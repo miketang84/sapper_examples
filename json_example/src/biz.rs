@@ -84,8 +84,7 @@ impl Biz {
             num: i32,
         }
         
-        let params = get_json_params!(req);
-        let person: Person = serde_json::from_value(params.clone()).unwrap();
+        let person: Person = get_json_params!(req);
 
         println!("{:#?}", person);
 
