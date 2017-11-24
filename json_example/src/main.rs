@@ -18,7 +18,7 @@ struct MyApp;
 
 impl SapperAppShell for MyApp {
     fn before(&self, req: &mut Request) -> Result<()> {
-        sapper_std::init(req)?;
+        sapper_std::init(req, None)?;
         
         Ok(())
     }
