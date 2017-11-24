@@ -1,7 +1,6 @@
 extern crate env_logger;
 extern crate dotenv;
 
-extern crate typemap;
 extern crate chrono;
 extern crate serde;
 #[macro_use] extern crate log;
@@ -15,7 +14,7 @@ extern crate sapper;
 
 use std::env;
 use std::sync::Arc;
-use typemap::Key;
+use sapper::Key;
 use dotenv::dotenv;
 
 use diesel::prelude::*;
@@ -34,7 +33,7 @@ struct MyApp;
 
 impl SapperAppShell for MyApp {
     fn before(&self, req: &mut Request) -> Result<()> {
-        sapper_std::init(req)?;
+        sapper_std::init(req, None)?;
 
         Ok(())
     }
