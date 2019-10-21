@@ -1,11 +1,11 @@
 [package]
 name = "json_example"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Mike Tang <miketang84@outlook.com>"]
 
 [dependencies]
-sapper = "0.1"
-sapper_std = "0.1"
+sapper = "0.2"
+sapper_std = "0.2"
 log = "*"
 env_logger = "*"
 serde="*"

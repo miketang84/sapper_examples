@@ -1,3 +1,4 @@
+#[macro_use] extern crate log;
 extern crate sapper;
 #[macro_use]
 extern crate sapper_std;

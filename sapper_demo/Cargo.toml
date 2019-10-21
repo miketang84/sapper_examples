@@ -1,14 +1,15 @@
 [package]
 name = "sapper_demo"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["piaoliu <441594700@qq.com>"]
 
 [dependencies]
- sapper = "^0.1"
- sapper_std = "^0.1"
+ sapper = "^0.2"
+ sapper_std = "^0.2"
  serde="*"
  serde_json="*"
  serde_derive="*"
+ log = "*"
 
-[patch.crates-io]
- sapper = { git = 'https://github.com/sappworks/sapper.git' }
+#[patch.crates-io]
+# sapper = { git = 'https://github.com/sappworks/sapper.git' }
